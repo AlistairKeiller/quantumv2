@@ -1,3 +1,5 @@
+@group(0) @binding(0) var<storage, read_write> buffer: array<f32>;
+
 @vertex
 fn vs_main(@builtin(vertex_index) in_vertex_index: u32) -> @builtin(position) vec4<f32> {
     let x = f32(i32(in_vertex_index) - 1);
