@@ -97,9 +97,15 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         }
     ]});
 
+    let init_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: None,
+        bind_group_layouts: &[&bind_group_layout],
+        push_constant_ranges: &[]
+    });
     let init_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
-        layout: None,
+        layout: Some(&init_pipeline_layout),
+        // layout: None,
         module: &shader,
         entry_point: "init"
     });
