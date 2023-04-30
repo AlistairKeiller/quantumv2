@@ -125,7 +125,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             binding: 0,
             visibility: wgpu::ShaderStages::all(),
             ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                sample_type: wgpu::TextureSampleType::Float { filterable: false },
                 view_dimension: wgpu::TextureViewDimension::D2,
                 multisampled: false
             },
@@ -135,7 +135,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             binding: 1,
             visibility: wgpu::ShaderStages::all(),
             ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                sample_type: wgpu::TextureSampleType::Float { filterable: false },
                 view_dimension: wgpu::TextureViewDimension::D2,
                 multisampled: false
             },
@@ -145,7 +145,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             binding: 2,
             visibility: wgpu::ShaderStages::all(),
             ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                sample_type: wgpu::TextureSampleType::Float { filterable: false },
                 view_dimension: wgpu::TextureViewDimension::D2,
                 multisampled: false
             },
@@ -155,7 +155,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             binding: 3,
             visibility: wgpu::ShaderStages::all(),
             ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                sample_type: wgpu::TextureSampleType::Float { filterable: false },
                 view_dimension: wgpu::TextureViewDimension::D2,
                 multisampled: false
             },
@@ -165,7 +165,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             binding: 4,
             visibility: wgpu::ShaderStages::all(),
             ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                sample_type: wgpu::TextureSampleType::Float { filterable: false },
                 view_dimension: wgpu::TextureViewDimension::D2,
                 multisampled: false
             },
@@ -179,19 +179,19 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         },
         wgpu::BindGroupEntry {
             binding: 1,
-            resource: wgpu::BindingResource::TextureView(&k1_texture_view)
+            resource: wgpu::BindingResource::TextureView(&k2_texture_view)
         },
         wgpu::BindGroupEntry {
             binding: 2,
-            resource: wgpu::BindingResource::TextureView(&k1_texture_view)
+            resource: wgpu::BindingResource::TextureView(&k3_texture_view)
         },
         wgpu::BindGroupEntry {
             binding: 3,
-            resource: wgpu::BindingResource::TextureView(&k1_texture_view)
+            resource: wgpu::BindingResource::TextureView(&k4_texture_view)
         },
         wgpu::BindGroupEntry {
             binding: 4,
-            resource: wgpu::BindingResource::TextureView(&k1_texture_view)
+            resource: wgpu::BindingResource::TextureView(&psi_texture_view)
         },
     ]});
 
