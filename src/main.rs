@@ -72,13 +72,15 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     surface.configure(&device, &config);
 
-    let buffer_size = (size.width * size.height * 2 * 5 * std::mem::size_of::<f32>() as u32) as u64;
+    let buffer_size = (size.width * size.height * 2 * 5 * std::mem::size_of::<f32>() as u32) as wgpu::BufferAddress;
     
     let buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: None,
         size: buffer_size,
-        usage: wgpu::BufferUsages::STORAGE,
-        mapped_at_creation: true
+        // remove if possible
+        usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC | wgpu::BufferUsages::COPY_DST,
+        // IDK what the effects of this are
+        mapped_at_creation: false
     });
 
     let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor { label: None, entries: &[
