@@ -14,6 +14,12 @@ fn fs_main() -> @location(0) vec4<f32> {
 
 @compute
 @workgroup_size(1)
+fn init(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    buffer[0] = 1.0;
+}
+
+@compute
+@workgroup_size(1)
 fn k1() {
 }
 

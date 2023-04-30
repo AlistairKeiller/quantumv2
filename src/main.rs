@@ -97,6 +97,12 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         }
     ]});
 
+    let init_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+        label: None,
+        layout: None,
+        module: &shader,
+        entry_point: "init"
+    });
     let k1_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
         layout: None,
@@ -127,6 +133,18 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         module: &shader,
         entry_point: "psi"
     });
+
+    {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        {
+            let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+            cpass.set_pipeline(&init_compute_pipeline);
+            cpass.set_bind_group(0, &bind_group, &[]);
+            cpass.insert_debug_marker("compute init");
+            cpass.dispatch_workgroups(size.width,size.height, 2);
+        }
+        queue.submit(Some(encoder.finish()));
+    }
 
     event_loop.run(move |event, _, control_flow| {
         // Have the closure take ownership of the resources.
