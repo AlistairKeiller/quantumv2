@@ -18,7 +18,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     // Create the logical device and command queue
     let (device, queue) = adapter
-        .request_device(&wgpu::DeviceDescriptor::default(), None)
+        .request_device(&wgpu::DeviceDescriptor {
+            label: None,
+            features: wgpu::Features::VERTEX_WRITABLE_STORAGE,
+            limits: wgpu::Limits::downlevel_defaults()
+        }, None)
         .await
         .expect("Failed to create device");
 
@@ -68,7 +72,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor { label: None, entries: &[
         wgpu::BindGroupLayoutEntry {
             binding: 0,
-            visibility: wgpu::ShaderStages::COMPUTE,
+            visibility: wgpu::ShaderStages::all(),
             ty: wgpu::BindingType::Buffer { ty: wgpu::BufferBindingType::Storage { read_only: false } , has_dynamic_offset: false, min_binding_size: wgpu::BufferSize::new(buffer_size) },
             count: None
         }
