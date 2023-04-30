@@ -64,7 +64,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
         format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
         view_formats: &[]
     });
     let k2_texture = device.create_texture(&wgpu::TextureDescriptor{
@@ -74,7 +74,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
         format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
         view_formats: &[]
     });
     let k3_texture = device.create_texture(&wgpu::TextureDescriptor{
@@ -84,7 +84,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
         format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
         view_formats: &[]
     });
     let k4_texture = device.create_texture(&wgpu::TextureDescriptor{
@@ -94,7 +94,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
         format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
         view_formats: &[]
     });
     let psi_texture = device.create_texture(&wgpu::TextureDescriptor{
@@ -104,7 +104,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
         format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
         view_formats: &[]
     });
 
@@ -124,50 +124,50 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         wgpu::BindGroupLayoutEntry {
             binding: 0,
             visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: false },
+            ty: wgpu::BindingType::StorageTexture {
                 view_dimension: wgpu::TextureViewDimension::D2,
-                multisampled: false
+                format: wgpu::TextureFormat::Rg32Float,
+                access: wgpu::StorageTextureAccess::ReadWrite
             },
             count: None
         },
         wgpu::BindGroupLayoutEntry {
             binding: 1,
             visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: false },
+            ty: wgpu::BindingType::StorageTexture {
                 view_dimension: wgpu::TextureViewDimension::D2,
-                multisampled: false
+                format: wgpu::TextureFormat::Rg32Float,
+                access: wgpu::StorageTextureAccess::ReadWrite
             },
             count: None
         },
         wgpu::BindGroupLayoutEntry {
             binding: 2,
             visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: false },
+            ty: wgpu::BindingType::StorageTexture {
                 view_dimension: wgpu::TextureViewDimension::D2,
-                multisampled: false
+                format: wgpu::TextureFormat::Rg32Float,
+                access: wgpu::StorageTextureAccess::ReadWrite
             },
             count: None
         },
         wgpu::BindGroupLayoutEntry {
             binding: 3,
             visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: false },
+            ty: wgpu::BindingType::StorageTexture {
                 view_dimension: wgpu::TextureViewDimension::D2,
-                multisampled: false
+                format: wgpu::TextureFormat::Rg32Float,
+                access: wgpu::StorageTextureAccess::ReadWrite
             },
             count: None
         },
         wgpu::BindGroupLayoutEntry {
             binding: 4,
             visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::Texture {
-                sample_type: wgpu::TextureSampleType::Float { filterable: false },
+            ty: wgpu::BindingType::StorageTexture {
                 view_dimension: wgpu::TextureViewDimension::D2,
-                multisampled: false
+                format: wgpu::TextureFormat::Rg32Float,
+                access: wgpu::StorageTextureAccess::ReadWrite
             },
             count: None
         },
