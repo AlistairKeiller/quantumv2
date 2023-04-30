@@ -1,9 +1,18 @@
 use std::borrow::Cow;
+use wgpu::util::DeviceExt;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
+use bytemuck::{Pod, Zeroable};
+
+#[repr(C)]
+#[derive(Clone, Copy, Pod, Zeroable)]
+struct Params {
+    width: u32,
+    height: u32
+}
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
     let size = window.inner_size();
@@ -32,18 +41,16 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("shader.wgsl"))),
     });
 
-    let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: None,
         bind_group_layouts: &[],
         push_constant_ranges: &[],
     });
-
     let swapchain_capabilities = surface.get_capabilities(&adapter);
     let swapchain_format = swapchain_capabilities.formats[0];
-
     let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: None,
-        layout: Some(&pipeline_layout),
+        layout: Some(&render_pipeline_layout),
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
@@ -69,11 +76,9 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         alpha_mode: swapchain_capabilities.alpha_modes[0],
         view_formats: vec![],
     };
-
     surface.configure(&device, &config);
 
     let buffer_size = (size.width * size.height * 2 * 5 * std::mem::size_of::<f32>() as u32) as wgpu::BufferAddress;
-    
     let buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: None,
         size: buffer_size,
@@ -83,11 +88,27 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         mapped_at_creation: false
     });
 
+    let params = Params {
+        width: size.width,
+        height: size.height
+    };
+    let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+        label: None,
+        contents: bytemuck::bytes_of(&params),
+        usage: wgpu::BufferUsages::UNIFORM
+    });
+
     let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor { label: None, entries: &[
         wgpu::BindGroupLayoutEntry {
             binding: 0,
             visibility: wgpu::ShaderStages::all(),
             ty: wgpu::BindingType::Buffer { ty: wgpu::BufferBindingType::Storage { read_only: false } , has_dynamic_offset: false, min_binding_size: wgpu::BufferSize::new(buffer_size) },
+            count: None
+        },
+        wgpu::BindGroupLayoutEntry {
+            binding: 1,
+            visibility: wgpu::ShaderStages::COMPUTE,
+            ty: wgpu::BindingType::Buffer { ty: wgpu::BufferBindingType::Uniform, has_dynamic_offset: false, min_binding_size: wgpu::BufferSize::new(std::mem::size_of::<Params>() as wgpu::BufferAddress) },
             count: None
         }
     ]});
@@ -96,6 +117,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         wgpu::BindGroupEntry {
             binding: 0,
             resource: buffer.as_entire_binding()
+        },
+        wgpu::BindGroupEntry {
+            binding: 1,
+            resource: params_buffer.as_entire_binding()
         }
     ]});
 
@@ -158,7 +183,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         // Have the closure take ownership of the resources.
         // `event_loop.run` never returns, therefore we must do this to ensure
         // the resources are properly cleaned up.
-        let _ = (&instance, &adapter, &shader, &pipeline_layout);
+        let _ = (&instance, &adapter, &shader, &render_pipeline_layout);
 
         *control_flow = ControlFlow::Wait;
         match event {
