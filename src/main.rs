@@ -1,4 +1,3 @@
-
 use std::borrow::Cow;
 use winit::{
     event::{Event, WindowEvent},
@@ -57,142 +56,28 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         multiview: None,
     });
 
-    let k1_texture = device.create_texture(&wgpu::TextureDescriptor{
+    let buffer_size = (size.width * size.height * 2 * 5 * std::mem::size_of::<f32>() as u32) as u64;
+    
+    let buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: None,
-        size: wgpu::Extent3d { width: size.width, height: size.height, depth_or_array_layers: 1 },
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
-        view_formats: &[]
+        size: buffer_size,
+        usage: wgpu::BufferUsages::STORAGE,
+        mapped_at_creation: true
     });
-    let k2_texture = device.create_texture(&wgpu::TextureDescriptor{
-        label: None,
-        size: wgpu::Extent3d { width: size.width, height: size.height, depth_or_array_layers: 1 },
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
-        view_formats: &[]
-    });
-    let k3_texture = device.create_texture(&wgpu::TextureDescriptor{
-        label: None,
-        size: wgpu::Extent3d { width: size.width, height: size.height, depth_or_array_layers: 1 },
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
-        view_formats: &[]
-    });
-    let k4_texture = device.create_texture(&wgpu::TextureDescriptor{
-        label: None,
-        size: wgpu::Extent3d { width: size.width, height: size.height, depth_or_array_layers: 1 },
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
-        view_formats: &[]
-    });
-    let psi_texture = device.create_texture(&wgpu::TextureDescriptor{
-        label: None,
-        size: wgpu::Extent3d { width: size.width, height: size.height, depth_or_array_layers: 1 },
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rg32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::STORAGE_BINDING,
-        view_formats: &[]
-    });
-
-    let k1_texture_view = k1_texture.create_view(&wgpu::TextureViewDescriptor::default());
-    let k2_texture_view = k2_texture.create_view(&wgpu::TextureViewDescriptor::default());
-    let k3_texture_view = k3_texture.create_view(&wgpu::TextureViewDescriptor::default());
-    let k4_texture_view = k4_texture.create_view(&wgpu::TextureViewDescriptor::default());
-    let psi_texture_view = psi_texture.create_view(&wgpu::TextureViewDescriptor::default());
-
-    // let k1_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor { label: None, layout: None, module: &shader, entry_point: "k1" });
-    // let k2_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor { label: None, layout: None, module: &shader, entry_point: "k2" });
-    // let k3_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor { label: None, layout: None, module: &shader, entry_point: "k3" });
-    // let k4_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor { label: None, layout: None, module: &shader, entry_point: "k4" });
-    // let psi_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor { label: None, layout: None, module: &shader, entry_point: "psi" });
 
     let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor { label: None, entries: &[
         wgpu::BindGroupLayoutEntry {
             binding: 0,
-            visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::StorageTexture {
-                view_dimension: wgpu::TextureViewDimension::D2,
-                format: wgpu::TextureFormat::Rg32Float,
-                access: wgpu::StorageTextureAccess::ReadWrite
-            },
+            visibility: wgpu::ShaderStages::COMPUTE,
+            ty: wgpu::BindingType::Buffer { ty: wgpu::BufferBindingType::Storage { read_only: false } , has_dynamic_offset: false, min_binding_size: wgpu::BufferSize::new(buffer_size) },
             count: None
-        },
-        wgpu::BindGroupLayoutEntry {
-            binding: 1,
-            visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::StorageTexture {
-                view_dimension: wgpu::TextureViewDimension::D2,
-                format: wgpu::TextureFormat::Rg32Float,
-                access: wgpu::StorageTextureAccess::ReadWrite
-            },
-            count: None
-        },
-        wgpu::BindGroupLayoutEntry {
-            binding: 2,
-            visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::StorageTexture {
-                view_dimension: wgpu::TextureViewDimension::D2,
-                format: wgpu::TextureFormat::Rg32Float,
-                access: wgpu::StorageTextureAccess::ReadWrite
-            },
-            count: None
-        },
-        wgpu::BindGroupLayoutEntry {
-            binding: 3,
-            visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::StorageTexture {
-                view_dimension: wgpu::TextureViewDimension::D2,
-                format: wgpu::TextureFormat::Rg32Float,
-                access: wgpu::StorageTextureAccess::ReadWrite
-            },
-            count: None
-        },
-        wgpu::BindGroupLayoutEntry {
-            binding: 4,
-            visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::StorageTexture {
-                view_dimension: wgpu::TextureViewDimension::D2,
-                format: wgpu::TextureFormat::Rg32Float,
-                access: wgpu::StorageTextureAccess::ReadWrite
-            },
-            count: None
-        },
+        }
     ]});
     let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor { label: None, layout: &bind_group_layout, entries: &[
         wgpu::BindGroupEntry {
             binding: 0,
-            resource: wgpu::BindingResource::TextureView(&k1_texture_view)
-        },
-        wgpu::BindGroupEntry {
-            binding: 1,
-            resource: wgpu::BindingResource::TextureView(&k2_texture_view)
-        },
-        wgpu::BindGroupEntry {
-            binding: 2,
-            resource: wgpu::BindingResource::TextureView(&k3_texture_view)
-        },
-        wgpu::BindGroupEntry {
-            binding: 3,
-            resource: wgpu::BindingResource::TextureView(&k4_texture_view)
-        },
-        wgpu::BindGroupEntry {
-            binding: 4,
-            resource: wgpu::BindingResource::TextureView(&psi_texture_view)
-        },
+            resource: buffer.as_entire_binding()
+        }
     ]});
 
     let mut config = wgpu::SurfaceConfiguration {
