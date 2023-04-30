@@ -14,3 +14,23 @@ fn fs_main() -> @location(0) vec4<f32> {
 @workgroup_size(1)
 fn k1() {
 }
+
+@compute
+@workgroup_size(1)
+fn k2() {
+}
+
+@compute
+@workgroup_size(1)
+fn k3() {
+}
+
+@compute
+@workgroup_size(1)
+fn k4() {
+}
+
+@compute
+@workgroup_size(1)
+fn psi() {
+}
