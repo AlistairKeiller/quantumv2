@@ -78,7 +78,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         label: None,
         size: buffer_size,
         // remove if possible
-        usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC | wgpu::BufferUsages::COPY_DST,
+        usage: wgpu::BufferUsages::STORAGE,
         // IDK what the effects of this are
         mapped_at_creation: false
     });
