@@ -60,6 +60,18 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         multiview: None,
     });
 
+    let mut config = wgpu::SurfaceConfiguration {
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+        format: swapchain_format,
+        width: size.width,
+        height: size.height,
+        present_mode: wgpu::PresentMode::Fifo,
+        alpha_mode: swapchain_capabilities.alpha_modes[0],
+        view_formats: vec![],
+    };
+
+    surface.configure(&device, &config);
+
     let buffer_size = (size.width * size.height * 2 * 5 * std::mem::size_of::<f32>() as u32) as u64;
     
     let buffer = device.create_buffer(&wgpu::BufferDescriptor {
@@ -77,6 +89,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             count: None
         }
     ]});
+
     let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor { label: None, layout: &bind_group_layout, entries: &[
         wgpu::BindGroupEntry {
             binding: 0,
@@ -84,17 +97,12 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         }
     ]});
 
-    let mut config = wgpu::SurfaceConfiguration {
-        usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-        format: swapchain_format,
-        width: size.width,
-        height: size.height,
-        present_mode: wgpu::PresentMode::Fifo,
-        alpha_mode: swapchain_capabilities.alpha_modes[0],
-        view_formats: vec![],
-    };
-
-    surface.configure(&device, &config);
+    let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+        label: None,
+        layout: None,
+        module: &shader,
+        entry_point: "k1"
+    });
 
     event_loop.run(move |event, _, control_flow| {
         // Have the closure take ownership of the resources.
