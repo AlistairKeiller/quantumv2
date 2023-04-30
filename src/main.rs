@@ -107,7 +107,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         },
         wgpu::BindGroupLayoutEntry {
             binding: 1,
-            visibility: wgpu::ShaderStages::COMPUTE,
+            visibility: wgpu::ShaderStages::all(),
             ty: wgpu::BindingType::Buffer { ty: wgpu::BufferBindingType::Uniform, has_dynamic_offset: false, min_binding_size: wgpu::BufferSize::new(std::mem::size_of::<Params>() as wgpu::BufferAddress) },
             count: None
         }
