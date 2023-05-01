@@ -24,7 +24,7 @@ fn vs_main(@builtin(vertex_index) in_vertex_index: u32) -> @builtin(position) ve
 
 @fragment
 fn fs_main(@builtin(position) in: vec4<f32>) -> @location(0) vec4<f32> {
-    return vec4<f32>(in[1]/f32(params.height), 0.0, 0.0, 1.0);
+    return vec4<f32>(in[0]/(f32(params.width)), in[1]/(f32(params.height)), 0.0, 1.0);
 }
 
 @compute
