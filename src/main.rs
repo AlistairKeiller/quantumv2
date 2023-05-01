@@ -62,8 +62,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         x_0: size.width as f32/2.0,
         y_0: size.height as f32/2.0,
         sigma_0: 160.0,
-        p_0: 320.0,
-        delta_t: 1.0
+        p_0: 1.0,
+        delta_t: 0.1
     };
     let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
         label: None,
@@ -189,24 +189,25 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         // the resources are properly cleaned up.
         let _ = (&instance, &adapter, &shader, &pipeline_layout);
 
-        *control_flow = ControlFlow::Wait;
-        match event {
-            Event::WindowEvent {
-                event: WindowEvent::Resized(size),
-                ..
-            } => {
-                // Reconfigure the surface with the new size
-                config.width = size.width;
-                config.height = size.height;
-                surface.configure(&device, &config);
-                // On macos the window needs to be redrawn manually after resizing
-                window.request_redraw();
-            }
-            Event::RedrawRequested(_) => {
+        // println!("test");
+
+        // *control_flow = ControlFlow::Wait;
+        // match event {
+        //     Event::WindowEvent {
+        //         event: WindowEvent::Resized(size),
+        //         ..
+        //     } => {
+        //         // Reconfigure the surface with the new size
+        //         config.width = size.width;
+        //         config.height = size.height;
+        //         surface.configure(&device, &config);
+        //         // On macos the window needs to be redrawn manually after resizing
+        //         window.request_redraw();
+        //     }
+        //     Event::RedrawRequested(_) => {
                 let frame = surface
                     .get_current_texture()
                     .expect("Failed to acquire next swap chain texture");
-                println!("test");
                 let view = frame
                     .texture
                     .create_view(&wgpu::TextureViewDescriptor::default());
@@ -284,13 +285,13 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 }
 
                 frame.present();
-            }
-            Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                ..
-            } => *control_flow = ControlFlow::Exit,
-            _ => {}
-        }
+        //     }
+        //     Event::WindowEvent {
+        //         event: WindowEvent::CloseRequested,
+        //         ..
+        //     } => *control_flow = ControlFlow::Exit,
+        //     _ => {}
+        // }
     });
 }
 
