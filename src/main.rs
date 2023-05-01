@@ -15,7 +15,8 @@ struct Params {
     x_0: f32,
     y_0: f32,
     sigma_0: f32,
-    p_0: f32
+    p_0: f32,
+    delta_t: f32
 }
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
@@ -61,7 +62,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         x_0: size.width as f32/2.0,
         y_0: size.height as f32/2.0,
         sigma_0: 160.0,
-        p_0: 32.0
+        p_0: 32.0,
+        delta_t: 1.0
     };
     let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
         label: None,
