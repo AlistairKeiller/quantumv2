@@ -79,4 +79,8 @@ fn k4(@builtin(global_invocation_id) global_id: vec3<u32>) {
 @compute
 @workgroup_size(1)
 fn psi(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    buffer[global_id[0]+global_id[1]*params.width] = ComplexNumber(
+        buffer[global_id[0]+global_id[1]*params.width].real+buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].real/6.0+buffer[global_id[0]+global_id[1]*params.width+2u*params.width*params.height].real/3.0+buffer[global_id[0]+global_id[1]*params.width+3u*params.width*params.height].real/3.0+buffer[global_id[0]+global_id[1]*params.width+4u*params.width*params.height].real/6.0,
+        buffer[global_id[0]+global_id[1]*params.width].imaginary+buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].imaginary/6.0+buffer[global_id[0]+global_id[1]*params.width+2u*params.width*params.height].imaginary/3.0+buffer[global_id[0]+global_id[1]*params.width+3u*params.width*params.height].imaginary/3.0+buffer[global_id[0]+global_id[1]*params.width+4u*params.width*params.height].imaginary/6.0
+    );
 }
