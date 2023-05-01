@@ -62,8 +62,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         x_0: size.width as f32/2.0,
         y_0: size.height as f32/2.0,
         sigma_0: 160.0,
-        p_0: 0.1,
-        delta_t: 0.1
+        p_0: 0.5,
+        delta_t: 1.0
     };
     let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
         label: None,
@@ -217,7 +217,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                         cpass.set_pipeline(&k1_compute_pipeline);
                         cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
                     }
                     queue.submit(Some(encoder.finish()));
                 }
@@ -227,7 +227,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                         cpass.set_pipeline(&k2_compute_pipeline);
                         cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
                     }
                     queue.submit(Some(encoder.finish()));
                 }
@@ -237,7 +237,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                         cpass.set_pipeline(&k3_compute_pipeline);
                         cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
                     }
                     queue.submit(Some(encoder.finish()));
                 }
@@ -247,7 +247,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                         cpass.set_pipeline(&k4_compute_pipeline);
                         cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
                     }
                     queue.submit(Some(encoder.finish()));
                 }
@@ -257,7 +257,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                         cpass.set_pipeline(&psi_compute_pipeline);
                         cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
                     }
                     queue.submit(Some(encoder.finish()));
                 }

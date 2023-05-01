@@ -45,7 +45,7 @@ fn init(@builtin(global_invocation_id) global_id: vec3<u32>) {
 @compute
 @workgroup_size(1)
 fn k1(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let i = global_id[0]+global_id[1]*params.width;
+    let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
     buffer[i+b]=ComplexNumber(
         params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary),
@@ -56,7 +56,7 @@ fn k1(@builtin(global_invocation_id) global_id: vec3<u32>) {
 @compute
 @workgroup_size(1)
 fn k2(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let i = global_id[0]+global_id[1]*params.width;
+    let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
     buffer[i+2u*b]=ComplexNumber(
         params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary + 0.5*(buffer[i + b + 1u].imaginary + buffer[i + b - 1u].imaginary + buffer[i + b + params.width].imaginary + buffer[i + b - params.width].imaginary - 4.0*buffer[i + b].imaginary)),
@@ -67,7 +67,7 @@ fn k2(@builtin(global_invocation_id) global_id: vec3<u32>) {
 @compute
 @workgroup_size(1)
 fn k3(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let i = global_id[0]+global_id[1]*params.width;
+    let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
     buffer[i+3u*b]=ComplexNumber(
         params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary + 0.5*(buffer[i + 2u*b + 1u].imaginary + buffer[i + 2u*b - 1u].imaginary + buffer[i + 2u*b + params.width].imaginary + buffer[i + 2u*b - params.width].imaginary - 4.0*buffer[i + 2u*b].imaginary)),
@@ -78,7 +78,7 @@ fn k3(@builtin(global_invocation_id) global_id: vec3<u32>) {
 @compute
 @workgroup_size(1)
 fn k4(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let i = global_id[0]+global_id[1]*params.width;
+    let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
     buffer[i+3u*b]=ComplexNumber(
         params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary + buffer[i + 3u*b + 1u].imaginary + buffer[i + 3u*b - 1u].imaginary + buffer[i + 3u*b + params.width].imaginary + buffer[i + 3u*b - params.width].imaginary - 4.0*buffer[i + 3u*b].imaginary),
@@ -89,7 +89,7 @@ fn k4(@builtin(global_invocation_id) global_id: vec3<u32>) {
 @compute
 @workgroup_size(1)
 fn psi(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let i = global_id[0]+global_id[1]*params.width;
+    let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
     buffer[i]=ComplexNumber(
         buffer[i].real + buffer[i + b].real/6.0 + buffer[i + 2u*b].real/3.0 + buffer[i + 3u*b].real/3.0 + buffer[i + 4u*b].real/6.0,
