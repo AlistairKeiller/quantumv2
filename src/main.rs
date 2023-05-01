@@ -174,7 +174,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             cpass.set_pipeline(&init_compute_pipeline);
             cpass.set_bind_group(0, &bind_group, &[]);
             cpass.insert_debug_marker("compute init");
-            cpass.dispatch_workgroups(size.width,size.height, 2);
+            cpass.dispatch_workgroups(size.width,size.height, 1);
         }
         queue.submit(Some(encoder.finish()));
     }

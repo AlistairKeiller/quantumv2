@@ -3,7 +3,12 @@ struct Params {
     height: u32
 }
 
-@group(0) @binding(0) var<storage, read_write> buffer: array<f32>;
+struct ComplexNumber {
+    real: f32,
+    imaginary: f32
+}
+
+@group(0) @binding(0) var<storage, read_write> buffer: array<ComplexNumber>;
 @group(0) @binding(1) var<uniform> params: Params;
 
 @vertex
@@ -21,7 +26,7 @@ fn fs_main() -> @location(0) vec4<f32> {
 @compute
 @workgroup_size(1)
 fn init(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    buffer[params.width] = 1.0;
+    buffer[params.width].real = 1.0;
 }
 
 @compute
