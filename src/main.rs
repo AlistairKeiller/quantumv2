@@ -11,7 +11,11 @@ use bytemuck::{Pod, Zeroable};
 #[derive(Clone, Copy, Pod, Zeroable)]
 struct Params {
     width: u32,
-    height: u32
+    height: u32,
+    x_0: f32,
+    y_0: f32,
+    sigma_0: f32,
+    p_0: f32
 }
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
@@ -90,7 +94,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     let params = Params {
         width: size.width,
-        height: size.height
+        height: size.height,
+        x_0: size.width as f32/2.0,
+        y_0: size.height as f32/2.0,
+        sigma_0: 4.0,
+        p_0: 4.0
     };
     let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
         label: None,

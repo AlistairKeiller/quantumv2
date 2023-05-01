@@ -1,6 +1,10 @@
 struct Params {
     width: u32,
-    height: u32
+    height: u32,
+    x_0: f32,
+    y_0: f32,
+    sigma_0: f32,
+    p_0: f32
 }
 
 struct ComplexNumber {
@@ -26,7 +30,7 @@ fn fs_main() -> @location(0) vec4<f32> {
 @compute
 @workgroup_size(1)
 fn init(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    buffer[params.width].real = 1.0;
+    buffer[global_id[0]+global_id[1]*params.width].real = 1.0;
 }
 
 @compute
