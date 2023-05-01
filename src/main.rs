@@ -61,7 +61,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         x_0: size.width as f32/2.0,
         y_0: size.height as f32/2.0,
         sigma_0: 160.0,
-        p_0: 4.0
+        p_0: 32.0
     };
     let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
         label: None,
@@ -94,7 +94,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         }
     ]});
 
-    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+    let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: None,
         bind_group_layouts: &[&bind_group_layout],
         push_constant_ranges: &[],
@@ -103,7 +103,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let swapchain_format = swapchain_capabilities.formats[0];
     let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: None,
-        layout: Some(&render_pipeline_layout),
+        layout: Some(&pipeline_layout),
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
@@ -132,45 +132,40 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     surface.configure(&device, &config);
 
 
-    let init_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: None,
-        bind_group_layouts: &[&bind_group_layout],
-        push_constant_ranges: &[]
-    });
     let init_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
-        layout: Some(&init_pipeline_layout),
+        layout: Some(&pipeline_layout),
         // layout: None,
         module: &shader,
         entry_point: "init"
     });
     let k1_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
-        layout: None,
+        layout: Some(&pipeline_layout),
         module: &shader,
         entry_point: "k1"
     });
     let k2_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
-        layout: None,
+        layout: Some(&pipeline_layout),
         module: &shader,
         entry_point: "k2"
     });
     let k3_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
-        layout: None,
+        layout: Some(&pipeline_layout),
         module: &shader,
         entry_point: "k3"
     });
     let k4_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
-        layout: None,
+        layout: Some(&pipeline_layout),
         module: &shader,
         entry_point: "k4"
     });
     let psi_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
-        layout: None,
+        layout: Some(&pipeline_layout),
         module: &shader,
         entry_point: "psi"
     });
@@ -191,7 +186,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         // Have the closure take ownership of the resources.
         // `event_loop.run` never returns, therefore we must do this to ensure
         // the resources are properly cleaned up.
-        let _ = (&instance, &adapter, &shader, &render_pipeline_layout);
+        let _ = (&instance, &adapter, &shader, &pipeline_layout);
 
         *control_flow = ControlFlow::Wait;
         match event {
