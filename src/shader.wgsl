@@ -41,27 +41,35 @@ fn init(@builtin(global_invocation_id) global_id: vec3<u32>) {
     buffer[global_id[0]+global_id[1]*params.width].imaginary = pow(1.0/(2.0*3.1415*sigma_0*sigma_0),0.25)*exp(-((x-x_0)*(x-x_0)+(y-y_0)*(y-y_0))/(4.0*sigma_0*sigma_0))*sin(p_0*x);
 }
 
-@compute
-@workgroup_size(1)
-fn k1() {
+fn psi_prime(global_id: vec3<u32>, k: u32) -> ComplexNumber {
+    let index: u32 = global_id[0] + global_id[1]*params.width + k*params.width*params.height;
+    return ComplexNumber(
+        buffer[index + 1u].real + buffer[index - 1u].real + buffer[index + params.width].real + buffer[index - params.width].real - 4.0*buffer[index].real,
+        buffer[index + 1u].imaginary + buffer[index - 1u].imaginary + buffer[index + params.width].imaginary + buffer[index - params.width].imaginary - 4.0*buffer[index].imaginary
+    );
 }
 
 @compute
 @workgroup_size(1)
-fn k2() {
+fn k1(@builtin(global_invocation_id) global_id: vec3<u32>) {
 }
 
 @compute
 @workgroup_size(1)
-fn k3() {
+fn k2(@builtin(global_invocation_id) global_id: vec3<u32>) {
 }
 
 @compute
 @workgroup_size(1)
-fn k4() {
+fn k3(@builtin(global_invocation_id) global_id: vec3<u32>) {
 }
 
 @compute
 @workgroup_size(1)
-fn psi() {
+fn k4(@builtin(global_invocation_id) global_id: vec3<u32>) {
+}
+
+@compute
+@workgroup_size(1)
+fn psi(@builtin(global_invocation_id) global_id: vec3<u32>) {
 }
