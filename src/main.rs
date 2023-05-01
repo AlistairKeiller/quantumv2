@@ -62,8 +62,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         x_0: size.width as f32/2.0,
         y_0: size.height as f32/2.0,
         sigma_0: 160.0,
-        p_0: 160.0,
-        delta_t: 0.01
+        p_0: 0.1,
+        delta_t: 0.1
     };
     let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
         label: None,

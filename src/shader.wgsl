@@ -42,46 +42,57 @@ fn init(@builtin(global_invocation_id) global_id: vec3<u32>) {
     buffer[global_id[0]+global_id[1]*params.width].imaginary = pow(1.0/(2.0*3.1415*sigma_0*sigma_0),0.25)*exp(-((x-x_0)*(x-x_0)+(y-y_0)*(y-y_0))/(4.0*sigma_0*sigma_0))*sin(p_0*x);
 }
 
-fn prime(index: u32) -> ComplexNumber {
-    return ComplexNumber(
-        buffer[index + 1u].imaginary + buffer[index - 1u].imaginary + buffer[index + params.width].imaginary + buffer[index - params.width].imaginary - 4.0*buffer[index].imaginary,
-        - buffer[index + 1u].real - buffer[index - 1u].real - buffer[index + params.width].real - buffer[index - params.width].real + 4.0*buffer[index].real
+@compute
+@workgroup_size(1)
+fn k1(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let i = global_id[0]+global_id[1]*params.width;
+    let b = params.width*params.height;
+    buffer[i+b]=ComplexNumber(
+        params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary),
+        params.delta_t*(- buffer[i + 1u].real - buffer[i - 1u].real - buffer[i + params.width].real - buffer[i - params.width].real + 4.0*buffer[i].real)
     );
 }
 
 @compute
 @workgroup_size(1)
-fn k1(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let psi_prime = prime(global_id[0]+global_id[1]*params.width);
-    buffer[global_id[0]+global_id[1]*params.width+params.width*params.height]=ComplexNumber(psi_prime.real*params.delta_t,psi_prime.imaginary*params.delta_t);
-}
-
-@compute
-@workgroup_size(1)
 fn k2(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let k1_prime = prime(global_id[0]+global_id[1]*params.width+params.width*params.height);
-    buffer[global_id[0]+global_id[1]*params.width+2u*params.width*params.height]=ComplexNumber(buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].real+params.delta_t/0.5*k1_prime.real,buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].imaginary+params.delta_t/0.5*k1_prime.imaginary);
+    let i = global_id[0]+global_id[1]*params.width;
+    let b = params.width*params.height;
+    buffer[i+2u*b]=ComplexNumber(
+        params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary + 0.5*(buffer[i + b + 1u].imaginary + buffer[i + b - 1u].imaginary + buffer[i + b + params.width].imaginary + buffer[i + b - params.width].imaginary - 4.0*buffer[i + b].imaginary)),
+        params.delta_t*(- buffer[i + 1u].real - buffer[i - 1u].real - buffer[i + params.width].real - buffer[i - params.width].real + 4.0*buffer[i].real + 0.5*(- buffer[i + b + 1u].real - buffer[i + b - 1u].real - buffer[i + b + params.width].real - buffer[i + b - params.width].real + 4.0*buffer[i + b].real))
+    );
 }
 
 @compute
 @workgroup_size(1)
 fn k3(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let k2_prime = prime(global_id[0]+global_id[1]*params.width+2u*params.width*params.height);
-    buffer[global_id[0]+global_id[1]*params.width+3u*params.width*params.height]=ComplexNumber(buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].real+params.delta_t/0.5*k2_prime.real,buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].imaginary+params.delta_t/0.5*k2_prime.imaginary);
+    let i = global_id[0]+global_id[1]*params.width;
+    let b = params.width*params.height;
+    buffer[i+3u*b]=ComplexNumber(
+        params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary + 0.5*(buffer[i + 2u*b + 1u].imaginary + buffer[i + 2u*b - 1u].imaginary + buffer[i + 2u*b + params.width].imaginary + buffer[i + 2u*b - params.width].imaginary - 4.0*buffer[i + 2u*b].imaginary)),
+        params.delta_t*(- buffer[i + 1u].real - buffer[i - 1u].real - buffer[i + params.width].real - buffer[i - params.width].real + 4.0*buffer[i].real + 0.5*(- buffer[i + 2u*b + 1u].real - buffer[i + 2u*b - 1u].real - buffer[i + 2u*b + params.width].real - buffer[i + 2u*b - params.width].real + 4.0*buffer[i + 2u*b].real))
+    );
 }
 
 @compute
 @workgroup_size(1)
 fn k4(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let k3_prime = prime(global_id[0]+global_id[1]*params.width+3u*params.width*params.height);
-    buffer[global_id[0]+global_id[1]*params.width+4u*params.width*params.height]=ComplexNumber(buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].real+params.delta_t*k3_prime.real,buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].imaginary+params.delta_t*k3_prime.imaginary);
+    let i = global_id[0]+global_id[1]*params.width;
+    let b = params.width*params.height;
+    buffer[i+3u*b]=ComplexNumber(
+        params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary + buffer[i + 3u*b + 1u].imaginary + buffer[i + 3u*b - 1u].imaginary + buffer[i + 3u*b + params.width].imaginary + buffer[i + 3u*b - params.width].imaginary - 4.0*buffer[i + 3u*b].imaginary),
+        params.delta_t*(- buffer[i + 1u].real - buffer[i - 1u].real - buffer[i + params.width].real - buffer[i - params.width].real + 4.0*buffer[i].real + - buffer[i + 3u*b + 1u].real - buffer[i + 3u*b - 1u].real - buffer[i + 3u*b + params.width].real - buffer[i + 3u*b - params.width].real + 4.0*buffer[i + 3u*b].real)
+    );
 }
 
 @compute
 @workgroup_size(1)
 fn psi(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    buffer[global_id[0]+global_id[1]*params.width] = ComplexNumber(
-        buffer[global_id[0]+global_id[1]*params.width].real+buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].real/6.0+buffer[global_id[0]+global_id[1]*params.width+2u*params.width*params.height].real/3.0+buffer[global_id[0]+global_id[1]*params.width+3u*params.width*params.height].real/3.0+buffer[global_id[0]+global_id[1]*params.width+4u*params.width*params.height].real/6.0,
-        buffer[global_id[0]+global_id[1]*params.width].imaginary+buffer[global_id[0]+global_id[1]*params.width+params.width*params.height].imaginary/6.0+buffer[global_id[0]+global_id[1]*params.width+2u*params.width*params.height].imaginary/3.0+buffer[global_id[0]+global_id[1]*params.width+3u*params.width*params.height].imaginary/3.0+buffer[global_id[0]+global_id[1]*params.width+4u*params.width*params.height].imaginary/6.0
+    let i = global_id[0]+global_id[1]*params.width;
+    let b = params.width*params.height;
+    buffer[i]=ComplexNumber(
+        buffer[i].real + buffer[i + b].real/6.0 + buffer[i + 2u*b].real/3.0 + buffer[i + 3u*b].real/3.0 + buffer[i + 4u*b].real/6.0,
+        buffer[i].imaginary + buffer[i + b].imaginary/6.0 + buffer[i + 2u*b].imaginary/3.0 + buffer[i + 3u*b].imaginary/3.0 + buffer[i + 4u*b].imaginary/6.0
     );
 }
