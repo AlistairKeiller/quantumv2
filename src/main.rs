@@ -45,43 +45,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("shader.wgsl"))),
     });
 
-    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: None,
-        bind_group_layouts: &[],
-        push_constant_ranges: &[],
-    });
-    let swapchain_capabilities = surface.get_capabilities(&adapter);
-    let swapchain_format = swapchain_capabilities.formats[0];
-    let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        label: None,
-        layout: Some(&render_pipeline_layout),
-        vertex: wgpu::VertexState {
-            module: &shader,
-            entry_point: "vs_main",
-            buffers: &[],
-        },
-        fragment: Some(wgpu::FragmentState {
-            module: &shader,
-            entry_point: "fs_main",
-            targets: &[Some(swapchain_format.into())],
-        }),
-        primitive: wgpu::PrimitiveState::default(),
-        depth_stencil: None,
-        multisample: wgpu::MultisampleState::default(),
-        multiview: None,
-    });
-
-    let mut config = wgpu::SurfaceConfiguration {
-        usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-        format: swapchain_format,
-        width: size.width,
-        height: size.height,
-        present_mode: wgpu::PresentMode::Fifo,
-        alpha_mode: swapchain_capabilities.alpha_modes[0],
-        view_formats: vec![],
-    };
-    surface.configure(&device, &config);
-
     let buffer_size = (size.width * size.height * 2 * 5 * std::mem::size_of::<f32>() as u32) as wgpu::BufferAddress;
     let buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: None,
@@ -120,7 +83,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             count: None
         }
     ]});
-
     let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor { label: None, layout: &bind_group_layout, entries: &[
         wgpu::BindGroupEntry {
             binding: 0,
@@ -131,6 +93,44 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             resource: params_buffer.as_entire_binding()
         }
     ]});
+
+    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: None,
+        bind_group_layouts: &[&bind_group_layout],
+        push_constant_ranges: &[],
+    });
+    let swapchain_capabilities = surface.get_capabilities(&adapter);
+    let swapchain_format = swapchain_capabilities.formats[0];
+    let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        label: None,
+        layout: Some(&render_pipeline_layout),
+        vertex: wgpu::VertexState {
+            module: &shader,
+            entry_point: "vs_main",
+            buffers: &[],
+        },
+        fragment: Some(wgpu::FragmentState {
+            module: &shader,
+            entry_point: "fs_main",
+            targets: &[Some(swapchain_format.into())],
+        }),
+        primitive: wgpu::PrimitiveState::default(),
+        depth_stencil: None,
+        multisample: wgpu::MultisampleState::default(),
+        multiview: None,
+    });
+
+    let mut config = wgpu::SurfaceConfiguration {
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+        format: swapchain_format,
+        width: size.width,
+        height: size.height,
+        present_mode: wgpu::PresentMode::Fifo,
+        alpha_mode: swapchain_capabilities.alpha_modes[0],
+        view_formats: vec![],
+    };
+    surface.configure(&device, &config);
+
 
     let init_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: None,
@@ -229,6 +229,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         depth_stencil_attachment: None,
                     });
                     rpass.set_pipeline(&render_pipeline);
+                    rpass.set_bind_group(0, &bind_group, &[]);
                     rpass.draw(0..3, 0..1);
                 }
 
