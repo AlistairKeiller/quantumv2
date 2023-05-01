@@ -30,7 +30,14 @@ fn fs_main() -> @location(0) vec4<f32> {
 @compute
 @workgroup_size(1)
 fn init(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    buffer[global_id[0]+global_id[1]*params.width].real = 1.0;
+    let x = f32(global_id[0]);
+    let y = f32(global_id[1]);
+    let x_0 = params.x_0;
+    let y_0 = params.y_0;
+    let sigma_0 = params.sigma_0;
+    let p_0 = params.p_0;
+    buffer[global_id[0]+global_id[1]*params.width].real = pow(1.0/(2.0*3.1415*sigma_0*sigma_0),0.25)*exp(-((x-x_0)*(x-x_0)+(y-y_0)*(y-y_0))/(4.0*sigma_0*sigma_0))*cos(p_0*sqrt(x*x+y*y));
+    buffer[global_id[0]+global_id[1]*params.width].imaginary = pow(1.0/(2.0*3.1415*sigma_0*sigma_0),0.25)*exp(-((x-x_0)*(x-x_0)+(y-y_0)*(y-y_0))/(4.0*sigma_0*sigma_0))*sin(p_0*sqrt(x*x+y*y));
 }
 
 @compute
