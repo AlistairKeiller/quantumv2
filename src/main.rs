@@ -62,7 +62,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         x_0: size.width as f32/2.0,
         y_0: size.height as f32/2.0,
         sigma_0: 160.0,
-        p_0: 32.0,
+        p_0: 320.0,
         delta_t: 1.0
     };
     let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
@@ -178,7 +178,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
             cpass.set_pipeline(&init_compute_pipeline);
             cpass.set_bind_group(0, &bind_group, &[]);
-            cpass.insert_debug_marker("compute init");
             cpass.dispatch_workgroups(size.width,size.height, 1);
         }
         queue.submit(Some(encoder.finish()));
@@ -207,30 +206,83 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 let frame = surface
                     .get_current_texture()
                     .expect("Failed to acquire next swap chain texture");
+                println!("test");
                 let view = frame
                     .texture
                     .create_view(&wgpu::TextureViewDescriptor::default());
-                let mut encoder =
-                    device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
                 {
-                    let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                        label: None,
-                        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                            view: &view,
-                            resolve_target: None,
-                            ops: wgpu::Operations {
-                                load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
-                                store: true,
-                            },
-                        })],
-                        depth_stencil_attachment: None,
-                    });
-                    rpass.set_pipeline(&render_pipeline);
-                    rpass.set_bind_group(0, &bind_group, &[]);
-                    rpass.draw(0..3, 0..1);
+                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+                    {
+                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                        cpass.set_pipeline(&k1_compute_pipeline);
+                        cpass.set_bind_group(0, &bind_group, &[]);
+                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                    }
+                    queue.submit(Some(encoder.finish()));
+                }
+                {
+                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+                    {
+                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                        cpass.set_pipeline(&k2_compute_pipeline);
+                        cpass.set_bind_group(0, &bind_group, &[]);
+                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                    }
+                    queue.submit(Some(encoder.finish()));
+                }
+                {
+                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+                    {
+                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                        cpass.set_pipeline(&k3_compute_pipeline);
+                        cpass.set_bind_group(0, &bind_group, &[]);
+                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                    }
+                    queue.submit(Some(encoder.finish()));
+                }
+                {
+                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+                    {
+                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                        cpass.set_pipeline(&k4_compute_pipeline);
+                        cpass.set_bind_group(0, &bind_group, &[]);
+                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                    }
+                    queue.submit(Some(encoder.finish()));
+                }
+                {
+                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+                    {
+                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                        cpass.set_pipeline(&psi_compute_pipeline);
+                        cpass.set_bind_group(0, &bind_group, &[]);
+                        cpass.dispatch_workgroups(size.width,size.height, 1);
+                    }
+                    queue.submit(Some(encoder.finish()));
+                }
+                {
+                    let mut encoder =
+                        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+                    {
+                        let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                            label: None,
+                            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                                view: &view,
+                                resolve_target: None,
+                                ops: wgpu::Operations {
+                                    load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
+                                    store: true,
+                                },
+                            })],
+                            depth_stencil_attachment: None,
+                        });
+                        rpass.set_pipeline(&render_pipeline);
+                        rpass.set_bind_group(0, &bind_group, &[]);
+                        rpass.draw(0..3, 0..1);
+                    }
+                    queue.submit(Some(encoder.finish()));
                 }
 
-                queue.submit(Some(encoder.finish()));
                 frame.present();
             }
             Event::WindowEvent {
