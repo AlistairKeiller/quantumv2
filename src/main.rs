@@ -270,7 +270,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
         frame.present();
 
-        *control_flow = ControlFlow::Wait;
         match event {
             Event::WindowEvent {
                 event: WindowEvent::Resized(size),
