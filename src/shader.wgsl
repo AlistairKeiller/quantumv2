@@ -26,7 +26,12 @@ fn vs_main(@builtin(vertex_index) in_vertex_index: u32) -> @builtin(position) ve
 @fragment
 fn fs_main(@builtin(position) in: vec4<f32>) -> @location(0) vec4<f32> {
     let c = buffer[u32(in[0])+u32(in[1])*params.width];
-    return vec4<f32>(c.real*c.real*params.sigma_0, c.imaginary*c.imaginary*params.sigma_0, 0.0, 1.0);
+    return vec4<f32>(
+        c.real*c.real*params.sigma_0,
+        c.imaginary*c.imaginary*params.sigma_0,
+        f32((f32(params.width)*7.0/32.0<f32(in[0])&&f32(in[0])<f32(params.width)*8.0/32.0)&&(((f32(in[1])>f32(params.height)*18.0/32.0))|(f32(in[1])<f32(params.height)*17.0/32.0&&f32(in[1])>f32(params.height)*15.0/32.0)|(f32(in[1])<f32(params.height)*14.0/32.0))),
+        1.0
+    );
 }
 
 @compute
@@ -47,6 +52,7 @@ fn init(@builtin(global_invocation_id) global_id: vec3<u32>) {
 fn k1(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
+    let w = u32(true) * 5u;
     buffer[i+b]=ComplexNumber(
         params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary),
         params.delta_t*(- buffer[i + 1u].real - buffer[i - 1u].real - buffer[i + params.width].real - buffer[i - params.width].real + 4.0*buffer[i].real)
