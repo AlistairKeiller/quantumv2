@@ -206,11 +206,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     }
 
     event_loop.run(move |event, _, control_flow| {
-        // Have the closure take ownership of the resources.
-        // `event_loop.run` never returns, therefore we must do this to ensure
-        // the resources are properly cleaned up.
-        let _ = (&instance, &adapter, &shader, &pipeline_layout);
-
         let frame = surface
             .get_current_texture()
             .expect("Failed to acquire next swap chain texture");
