@@ -1,3 +1,4 @@
+use bytemuck::{Pod, Zeroable};
 use std::borrow::Cow;
 use wgpu::util::DeviceExt;
 use winit::{
@@ -5,7 +6,6 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use bytemuck::{Pod, Zeroable};
 
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
@@ -16,7 +16,7 @@ struct Params {
     y_0: f32,
     sigma_0: f32,
     p_0: f32,
-    delta_t: f32
+    delta_t: f32,
 }
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
@@ -32,11 +32,14 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     // Create the logical device and command queue
     let (device, queue) = adapter
-        .request_device(&wgpu::DeviceDescriptor {
-            label: None,
-            features: wgpu::Features::VERTEX_WRITABLE_STORAGE,
-            limits: wgpu::Limits::downlevel_defaults()
-        }, None)
+        .request_device(
+            &wgpu::DeviceDescriptor {
+                label: None,
+                features: wgpu::Features::VERTEX_WRITABLE_STORAGE,
+                limits: wgpu::Limits::downlevel_defaults(),
+            },
+            None,
+        )
         .await
         .expect("Failed to create device");
 
@@ -46,55 +49,73 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("shader.wgsl"))),
     });
 
-    let buffer_size = (size.width * size.height * 2 * 5 * std::mem::size_of::<f32>() as u32) as wgpu::BufferAddress;
+    let buffer_size = (size.width * size.height * 2 * 5 * std::mem::size_of::<f32>() as u32)
+        as wgpu::BufferAddress;
     let buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: None,
         size: buffer_size,
         // remove if possible
         usage: wgpu::BufferUsages::STORAGE,
         // IDK what the effects of this are
-        mapped_at_creation: false
+        mapped_at_creation: false,
     });
 
     let params = Params {
         width: size.width,
         height: size.height,
-        x_0: size.width as f32/2.0,
-        y_0: size.height as f32/2.0,
+        x_0: size.width as f32 / 2.0,
+        y_0: size.height as f32 / 2.0,
         sigma_0: 80.0,
         p_0: 0.5,
-        delta_t: 0.1
+        delta_t: 0.1,
     };
-    let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+    let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: None,
         contents: bytemuck::bytes_of(&params),
-        usage: wgpu::BufferUsages::UNIFORM
+        usage: wgpu::BufferUsages::UNIFORM,
     });
 
-    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor { label: None, entries: &[
-        wgpu::BindGroupLayoutEntry {
-            binding: 0,
-            visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::Buffer { ty: wgpu::BufferBindingType::Storage { read_only: false } , has_dynamic_offset: false, min_binding_size: wgpu::BufferSize::new(buffer_size) },
-            count: None
-        },
-        wgpu::BindGroupLayoutEntry {
-            binding: 1,
-            visibility: wgpu::ShaderStages::all(),
-            ty: wgpu::BindingType::Buffer { ty: wgpu::BufferBindingType::Uniform, has_dynamic_offset: false, min_binding_size: wgpu::BufferSize::new(std::mem::size_of::<Params>() as wgpu::BufferAddress) },
-            count: None
-        }
-    ]});
-    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor { label: None, layout: &bind_group_layout, entries: &[
-        wgpu::BindGroupEntry {
-            binding: 0,
-            resource: buffer.as_entire_binding()
-        },
-        wgpu::BindGroupEntry {
-            binding: 1,
-            resource: params_buffer.as_entire_binding()
-        }
-    ]});
+    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: None,
+        entries: &[
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::all(),
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Storage { read_only: false },
+                    has_dynamic_offset: false,
+                    min_binding_size: wgpu::BufferSize::new(buffer_size),
+                },
+                count: None,
+            },
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::all(),
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: wgpu::BufferSize::new(
+                        std::mem::size_of::<Params>() as wgpu::BufferAddress
+                    ),
+                },
+                count: None,
+            },
+        ],
+    });
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: None,
+        layout: &bind_group_layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: buffer.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: params_buffer.as_entire_binding(),
+            },
+        ],
+    });
 
     let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: None,
@@ -133,52 +154,53 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     };
     surface.configure(&device, &config);
 
-
     let init_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
         layout: Some(&pipeline_layout),
         // layout: None,
         module: &shader,
-        entry_point: "init"
+        entry_point: "init",
     });
     let k1_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
         layout: Some(&pipeline_layout),
         module: &shader,
-        entry_point: "k1"
+        entry_point: "k1",
     });
     let k2_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
         layout: Some(&pipeline_layout),
         module: &shader,
-        entry_point: "k2"
+        entry_point: "k2",
     });
     let k3_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
         layout: Some(&pipeline_layout),
         module: &shader,
-        entry_point: "k3"
+        entry_point: "k3",
     });
     let k4_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
         layout: Some(&pipeline_layout),
         module: &shader,
-        entry_point: "k4"
+        entry_point: "k4",
     });
     let psi_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
         label: None,
         layout: Some(&pipeline_layout),
         module: &shader,
-        entry_point: "psi"
+        entry_point: "psi",
     });
 
     {
-        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        let mut encoder =
+            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
         {
-            let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+            let mut cpass =
+                encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
             cpass.set_pipeline(&init_compute_pipeline);
             cpass.set_bind_group(0, &bind_group, &[]);
-            cpass.dispatch_workgroups(size.width,size.height, 1);
+            cpass.dispatch_workgroups(size.width, size.height, 1);
         }
         queue.submit(Some(encoder.finish()));
     }
@@ -196,52 +218,62 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
         {
-            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            let mut encoder =
+                device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
             {
-                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                let mut cpass =
+                    encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                 cpass.set_pipeline(&k1_compute_pipeline);
                 cpass.set_bind_group(0, &bind_group, &[]);
-                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+                cpass.dispatch_workgroups(size.width - 2, size.height - 2, 1);
             }
             queue.submit(Some(encoder.finish()));
         }
         {
-            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            let mut encoder =
+                device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
             {
-                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                let mut cpass =
+                    encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                 cpass.set_pipeline(&k2_compute_pipeline);
                 cpass.set_bind_group(0, &bind_group, &[]);
-                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+                cpass.dispatch_workgroups(size.width - 2, size.height - 2, 1);
             }
             queue.submit(Some(encoder.finish()));
         }
         {
-            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            let mut encoder =
+                device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
             {
-                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                let mut cpass =
+                    encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                 cpass.set_pipeline(&k3_compute_pipeline);
                 cpass.set_bind_group(0, &bind_group, &[]);
-                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+                cpass.dispatch_workgroups(size.width - 2, size.height - 2, 1);
             }
             queue.submit(Some(encoder.finish()));
         }
         {
-            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            let mut encoder =
+                device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
             {
-                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                let mut cpass =
+                    encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                 cpass.set_pipeline(&k4_compute_pipeline);
                 cpass.set_bind_group(0, &bind_group, &[]);
-                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+                cpass.dispatch_workgroups(size.width - 2, size.height - 2, 1);
             }
             queue.submit(Some(encoder.finish()));
         }
         {
-            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            let mut encoder =
+                device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
             {
-                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                let mut cpass =
+                    encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
                 cpass.set_pipeline(&psi_compute_pipeline);
                 cpass.set_bind_group(0, &bind_group, &[]);
-                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+                cpass.dispatch_workgroups(size.width - 2, size.height - 2, 1);
             }
             queue.submit(Some(encoder.finish()));
         }
