@@ -53,8 +53,8 @@ fn k1(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
     buffer[i+b]=ComplexNumber(
-        params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary),
-        params.delta_t*(- buffer[i + 1u].real - buffer[i - 1u].real - buffer[i + params.width].real - buffer[i - params.width].real + 4.0*buffer[i].real)
+        params.delta_t*(buffer[i + 1u].imaginary + buffer[i - 1u].imaginary + buffer[i + params.width].imaginary + buffer[i - params.width].imaginary - 4.0*buffer[i].imaginary + buffer[i].imaginary*64.0*f32((f32(params.width)*7.0/32.0<f32(global_id[0])&&f32(global_id[0])<f32(params.width)*8.0/32.0)&&(((f32(global_id[1])>f32(params.height)*18.0/32.0))|(f32(global_id[1])<f32(params.height)*17.0/32.0&&f32(global_id[1])>f32(params.height)*15.0/32.0)|(f32(global_id[1])<f32(params.height)*14.0/32.0)))),
+        params.delta_t*(- buffer[i + 1u].real - buffer[i - 1u].real - buffer[i + params.width].real - buffer[i - params.width].real + 4.0*buffer[i].real - buffer[i].real*64.0*f32((f32(params.width)*7.0/32.0<f32(global_id[0])&&f32(global_id[0])<f32(params.width)*8.0/32.0)&&(((f32(global_id[1])>f32(params.height)*18.0/32.0))|(f32(global_id[1])<f32(params.height)*17.0/32.0&&f32(global_id[1])>f32(params.height)*15.0/32.0)|(f32(global_id[1])<f32(params.height)*14.0/32.0))))
     );
 }
 
@@ -64,8 +64,8 @@ fn k2(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
     buffer[i+2u*b]=ComplexNumber(
-        buffer[i+b].real+params.delta_t*0.5*(buffer[i + b + 1u].imaginary + buffer[i + b - 1u].imaginary + buffer[i + b + params.width].imaginary + buffer[i + b - params.width].imaginary - 4.0*buffer[i + b].imaginary),
-        buffer[i+b].imaginary+params.delta_t*0.5*(- buffer[i + b + 1u].real - buffer[i + b - 1u].real - buffer[i + b + params.width].real - buffer[i + b - params.width].real + 4.0*buffer[i + b].real)
+        buffer[i+b].real+params.delta_t*0.5*(buffer[i + b + 1u].imaginary + buffer[i + b - 1u].imaginary + buffer[i + b + params.width].imaginary + buffer[i + b - params.width].imaginary - 4.0*buffer[i + b].imaginary + buffer[i+b].imaginary*64.0*f32((f32(params.width)*7.0/32.0<f32(global_id[0])&&f32(global_id[0])<f32(params.width)*8.0/32.0)&&(((f32(global_id[1])>f32(params.height)*18.0/32.0))|(f32(global_id[1])<f32(params.height)*17.0/32.0&&f32(global_id[1])>f32(params.height)*15.0/32.0)|(f32(global_id[1])<f32(params.height)*14.0/32.0)))),
+        buffer[i+b].imaginary+params.delta_t*0.5*(- buffer[i + b + 1u].real - buffer[i + b - 1u].real - buffer[i + b + params.width].real - buffer[i + b - params.width].real + 4.0*buffer[i + b].real - buffer[i+b].real*64.0*f32((f32(params.width)*7.0/32.0<f32(global_id[0])&&f32(global_id[0])<f32(params.width)*8.0/32.0)&&(((f32(global_id[1])>f32(params.height)*18.0/32.0))|(f32(global_id[1])<f32(params.height)*17.0/32.0&&f32(global_id[1])>f32(params.height)*15.0/32.0)|(f32(global_id[1])<f32(params.height)*14.0/32.0))))
     );
 }
 
@@ -75,8 +75,8 @@ fn k3(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
     buffer[i+3u*b]=ComplexNumber(
-        buffer[i+b].real+params.delta_t*0.5*(buffer[i + 2u*b + 1u].imaginary + buffer[i + 2u*b - 1u].imaginary + buffer[i + 2u*b + params.width].imaginary + buffer[i + 2u*b - params.width].imaginary - 4.0*buffer[i + 2u*b].imaginary),
-        buffer[i+b].imaginary+params.delta_t*0.5*(- buffer[i + 2u*b + 1u].real - buffer[i + 2u*b - 1u].real - buffer[i + 2u*b + params.width].real - buffer[i + 2u*b - params.width].real + 4.0*buffer[i + 2u*b].real)
+        buffer[i+b].real+params.delta_t*0.5*(buffer[i + 2u*b + 1u].imaginary + buffer[i + 2u*b - 1u].imaginary + buffer[i + 2u*b + params.width].imaginary + buffer[i + 2u*b - params.width].imaginary - 4.0*buffer[i + 2u*b].imaginary + buffer[i+2u*b].imaginary*64.0*f32((f32(params.width)*7.0/32.0<f32(global_id[0])&&f32(global_id[0])<f32(params.width)*8.0/32.0)&&(((f32(global_id[1])>f32(params.height)*18.0/32.0))|(f32(global_id[1])<f32(params.height)*17.0/32.0&&f32(global_id[1])>f32(params.height)*15.0/32.0)|(f32(global_id[1])<f32(params.height)*14.0/32.0)))),
+        buffer[i+b].imaginary+params.delta_t*0.5*(- buffer[i + 2u*b + 1u].real - buffer[i + 2u*b - 1u].real - buffer[i + 2u*b + params.width].real - buffer[i + 2u*b - params.width].real + 4.0*buffer[i + 2u*b].real - buffer[i + 2u*b].real*64.0*f32((f32(params.width)*7.0/32.0<f32(global_id[0])&&f32(global_id[0])<f32(params.width)*8.0/32.0)&&(((f32(global_id[1])>f32(params.height)*18.0/32.0))|(f32(global_id[1])<f32(params.height)*17.0/32.0&&f32(global_id[1])>f32(params.height)*15.0/32.0)|(f32(global_id[1])<f32(params.height)*14.0/32.0))))
     );
 }
 
@@ -85,9 +85,9 @@ fn k3(@builtin(global_invocation_id) global_id: vec3<u32>) {
 fn k4(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let i = (global_id[0]+1u)+(global_id[1]+1u)*params.width;
     let b = params.width*params.height;
-    buffer[i+3u*b]=ComplexNumber(
-        buffer[i+b].real+params.delta_t*(buffer[i + 3u*b + 1u].imaginary + buffer[i + 3u*b - 1u].imaginary + buffer[i + 3u*b + params.width].imaginary + buffer[i + 3u*b - params.width].imaginary - 4.0*buffer[i + 3u*b].imaginary),
-        buffer[i+b].imaginary+params.delta_t*(- buffer[i + 3u*b + 1u].real - buffer[i + 3u*b - 1u].real - buffer[i + 3u*b + params.width].real - buffer[i + 3u*b - params.width].real + 4.0*buffer[i + 3u*b].real)
+    buffer[i+4u*b]=ComplexNumber(
+        buffer[i+b].real+params.delta_t*(buffer[i + 3u*b + 1u].imaginary + buffer[i + 3u*b - 1u].imaginary + buffer[i + 3u*b + params.width].imaginary + buffer[i + 3u*b - params.width].imaginary - 4.0*buffer[i + 3u*b].imaginary + buffer[i + 3u*b].imaginary*64.0*f32((f32(params.width)*7.0/32.0<f32(global_id[0])&&f32(global_id[0])<f32(params.width)*8.0/32.0)&&(((f32(global_id[1])>f32(params.height)*18.0/32.0))|(f32(global_id[1])<f32(params.height)*17.0/32.0&&f32(global_id[1])>f32(params.height)*15.0/32.0)|(f32(global_id[1])<f32(params.height)*14.0/32.0)))),
+        buffer[i+b].imaginary+params.delta_t*(- buffer[i + 3u*b + 1u].real - buffer[i + 3u*b - 1u].real - buffer[i + 3u*b + params.width].real - buffer[i + 3u*b - params.width].real + 4.0*buffer[i + 3u*b].real - buffer[i + 3u*b].real*64.0*f32((f32(params.width)*7.0/32.0<f32(global_id[0])&&f32(global_id[0])<f32(params.width)*8.0/32.0)&&(((f32(global_id[1])>f32(params.height)*18.0/32.0))|(f32(global_id[1])<f32(params.height)*17.0/32.0&&f32(global_id[1])>f32(params.height)*15.0/32.0)|(f32(global_id[1])<f32(params.height)*14.0/32.0))))
     );
 }
 
