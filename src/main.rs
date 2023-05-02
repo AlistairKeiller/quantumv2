@@ -189,109 +189,106 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         // the resources are properly cleaned up.
         let _ = (&instance, &adapter, &shader, &pipeline_layout);
 
-        // println!("test");
+        let frame = surface
+            .get_current_texture()
+            .expect("Failed to acquire next swap chain texture");
+        let view = frame
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
+        {
+            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            {
+                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                cpass.set_pipeline(&k1_compute_pipeline);
+                cpass.set_bind_group(0, &bind_group, &[]);
+                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+            }
+            queue.submit(Some(encoder.finish()));
+        }
+        {
+            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            {
+                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                cpass.set_pipeline(&k2_compute_pipeline);
+                cpass.set_bind_group(0, &bind_group, &[]);
+                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+            }
+            queue.submit(Some(encoder.finish()));
+        }
+        {
+            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            {
+                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                cpass.set_pipeline(&k3_compute_pipeline);
+                cpass.set_bind_group(0, &bind_group, &[]);
+                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+            }
+            queue.submit(Some(encoder.finish()));
+        }
+        {
+            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            {
+                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                cpass.set_pipeline(&k4_compute_pipeline);
+                cpass.set_bind_group(0, &bind_group, &[]);
+                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+            }
+            queue.submit(Some(encoder.finish()));
+        }
+        {
+            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            {
+                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
+                cpass.set_pipeline(&psi_compute_pipeline);
+                cpass.set_bind_group(0, &bind_group, &[]);
+                cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
+            }
+            queue.submit(Some(encoder.finish()));
+        }
+        {
+            let mut encoder =
+                device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            {
+                let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                    label: None,
+                    color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                        view: &view,
+                        resolve_target: None,
+                        ops: wgpu::Operations {
+                            load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
+                            store: true,
+                        },
+                    })],
+                    depth_stencil_attachment: None,
+                });
+                rpass.set_pipeline(&render_pipeline);
+                rpass.set_bind_group(0, &bind_group, &[]);
+                rpass.draw(0..3, 0..1);
+            }
+            queue.submit(Some(encoder.finish()));
+        }
 
-        // *control_flow = ControlFlow::Wait;
-        // match event {
-        //     Event::WindowEvent {
-        //         event: WindowEvent::Resized(size),
-        //         ..
-        //     } => {
-        //         // Reconfigure the surface with the new size
-        //         config.width = size.width;
-        //         config.height = size.height;
-        //         surface.configure(&device, &config);
-        //         // On macos the window needs to be redrawn manually after resizing
-        //         window.request_redraw();
-        //     }
-        //     Event::RedrawRequested(_) => {
-                let frame = surface
-                    .get_current_texture()
-                    .expect("Failed to acquire next swap chain texture");
-                let view = frame
-                    .texture
-                    .create_view(&wgpu::TextureViewDescriptor::default());
-                {
-                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-                    {
-                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
-                        cpass.set_pipeline(&k1_compute_pipeline);
-                        cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
-                    }
-                    queue.submit(Some(encoder.finish()));
-                }
-                {
-                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-                    {
-                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
-                        cpass.set_pipeline(&k2_compute_pipeline);
-                        cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
-                    }
-                    queue.submit(Some(encoder.finish()));
-                }
-                {
-                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-                    {
-                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
-                        cpass.set_pipeline(&k3_compute_pipeline);
-                        cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
-                    }
-                    queue.submit(Some(encoder.finish()));
-                }
-                {
-                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-                    {
-                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
-                        cpass.set_pipeline(&k4_compute_pipeline);
-                        cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
-                    }
-                    queue.submit(Some(encoder.finish()));
-                }
-                {
-                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-                    {
-                        let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
-                        cpass.set_pipeline(&psi_compute_pipeline);
-                        cpass.set_bind_group(0, &bind_group, &[]);
-                        cpass.dispatch_workgroups(size.width-2,size.height-2, 1);
-                    }
-                    queue.submit(Some(encoder.finish()));
-                }
-                {
-                    let mut encoder =
-                        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-                    {
-                        let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                            label: None,
-                            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                                view: &view,
-                                resolve_target: None,
-                                ops: wgpu::Operations {
-                                    load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
-                                    store: true,
-                                },
-                            })],
-                            depth_stencil_attachment: None,
-                        });
-                        rpass.set_pipeline(&render_pipeline);
-                        rpass.set_bind_group(0, &bind_group, &[]);
-                        rpass.draw(0..3, 0..1);
-                    }
-                    queue.submit(Some(encoder.finish()));
-                }
+        frame.present();
 
-                frame.present();
-        //     }
-        //     Event::WindowEvent {
-        //         event: WindowEvent::CloseRequested,
-        //         ..
-        //     } => *control_flow = ControlFlow::Exit,
-        //     _ => {}
-        // }
+        *control_flow = ControlFlow::Wait;
+        match event {
+            Event::WindowEvent {
+                event: WindowEvent::Resized(size),
+                ..
+            } => {
+                // Reconfigure the surface with the new size
+                config.width = size.width;
+                config.height = size.height;
+                surface.configure(&device, &config);
+                // On macos the window needs to be redrawn manually after resizing
+                window.request_redraw();
+            }
+            Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                ..
+            } => *control_flow = ControlFlow::Exit,
+            _ => {}
+        }
     });
 }
 
